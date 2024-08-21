@@ -15,18 +15,18 @@ contact_rate = 1.5  # equals k, meaning one person meets 1.5 persons per day on 
 infection_probability = (
     0.14  # equals q, meaning there is a chance of 14% that the disease is transmitted
 )
-infection_rate = (
-    contact_rate * infection_probability
-)  # equals beta, tells how many people are infected by one infected per day
 
-death_recovery_rate = 0.07  # equals gamma, represents reciprocal of the days a person is infected before the person is removed, in this case roughly 14 days
+death_probability_of_human_by_zombies = (
+    0.04  # equals r, meaning there is a chance of 4% that a human is killed by a zombie
+)
+
+death_probability_of_zombies_by_human = (
+    0.11  # equals gamma, meaning there is a chance of 11% that a zombie is killed by a human
+)
 
 general_birth_rate = 0.00002235  # equals ny
 general_death_rate = 0.00003238  # equals my
-rates = (general_birth_rate, general_death_rate, death_recovery_rate, infection_rate)
-
-# calculate r0
-r_0 = infection_rate / death_recovery_rate
+rates = (general_birth_rate, general_death_rate, contact_rate, infection_probability, death_probability_of_human_by_zombies, death_probability_of_zombies_by_human)
 
 # define time span
 days = 150
@@ -41,22 +41,29 @@ def SIR_model(
     population,
     general_birth_rate,
     general_death_rate,
-    death_recovery_rate,
-    infection_rate,
+    contact_rate,
+    infection_probability,
+    death_probability_of_human_by_zombies,
+    death_probability_of_zombies_by_human,
 ):
     susceptible, infected, removed = population
     all = susceptible + infected + removed
     d_susceptible = (
         general_birth_rate * all
-        - infection_rate * susceptible * infected / all
+        - (infection_probability + death_probability_of_human_by_zombies) * contact_rate * susceptible * infected / all
         - general_death_rate * susceptible
     )
     d_infected = (
-        infection_rate * susceptible * infected / all
-        - death_recovery_rate * infected
+        infection_probability * contact_rate * susceptible * infected / all
+        - death_probability_of_zombies_by_human * infected
         - general_death_rate * infected
     )
-    d_removed = death_recovery_rate * infected - general_death_rate * removed
+    d_removed = (
+        death_probability_of_human_by_zombies * contact_rate * susceptible * infected / all
+        + death_probability_of_zombies_by_human * infected
+        + general_death_rate * susceptible
+        + general_death_rate * infected
+    )
     return [d_susceptible, d_infected, d_removed]
 
 
