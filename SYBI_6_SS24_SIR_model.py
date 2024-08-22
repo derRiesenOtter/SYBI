@@ -56,13 +56,11 @@ def SIR_model(
     d_infected = (
         infection_probability * contact_rate * susceptible * infected / all
         - death_probability_of_zombies_by_human * infected
-        - general_death_rate * infected
     )
     d_removed = (
         death_probability_of_human_by_zombies * contact_rate * susceptible * infected / all
         + death_probability_of_zombies_by_human * infected
         + general_death_rate * susceptible
-        + general_death_rate * infected
     )
     return [d_susceptible, d_infected, d_removed]
 
