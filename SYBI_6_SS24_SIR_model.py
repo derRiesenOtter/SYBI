@@ -85,7 +85,6 @@ plt.plot(t_eval, removed, label="Removed", color="black")
 plt.xlabel("Time in days")
 plt.ylabel("People")
 plt.title("SIR-Model Simulation")
-plt.text(50, 1, f"R_0 = {r_0:.1f}")
 plt.legend()
 plt.show()
 
