@@ -2,136 +2,188 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
 
-##### Global variables:
-
-POPULATION = 1
-
-GENERAL_BIRTH_RATE = 0.00002235  # equals ny
-GENERAL_DEATH_RATE = 0.00003238  # equals my
-
 ##### Scenarios:
 
-WORST_CASE = {
-    "infected": 0.01,
-    "contact_rate": 1.5,
-    "infection_probability": 0.14,
-    "human_killed_rate": 0.04,
-    "zombie_killed_rate": 0.11,
-    "time_in_days": 150,
+BASE_CASE = {
+    "case_name": "BASE_CASE",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.15,
+    "human_killed_rate": 0.15,
+    "zombie_killed_rate": 1,
+    "time_in_days": 360,
+    "changing": False,
 }
 
-time_interval = (0, days)
-t_eval = np.arange(days)
+WORST_CASE = {
+    "case_name": "WORST_CASE",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.45,
+    "human_killed_rate": 0.45,
+    "zombie_killed_rate": 1,
+    "time_in_days": 360,
+    "changing": False,
+}
 
-def SIR_manager()
+BEST_CASE = {
+    "case_name": "BEST_CASE",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.10,
+    "human_killed_rate": 0.10,
+    "zombie_killed_rate": 1,
+    "time_in_days": 360,
+    "changing": False,
+}
+
+CHANGING_CASE_14d = {
+    "case_name": "CHANGING_BASE_CASE_14d",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.15,
+    "human_killed_rate": 0.15,
+    "zombie_killed_rate": 1,
+    "time_in_days": 14,
+    "changing": True,
+    "zombie_killed_rate_2": 10,
+    "contact_rate_2": 3,
+    "time_in_days_2": 330,
+}
+
+CHANGING_CASE_21d = {
+    "case_name": "CHANGING_BASE_CASE_21d",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.15,
+    "human_killed_rate": 0.15,
+    "zombie_killed_rate": 1,
+    "time_in_days": 21,
+    "changing": True,
+    "zombie_killed_rate_2": 10,
+    "contact_rate_2": 3,
+    "time_in_days_2": 330,
+}
+
+CHANGING_CASE_28d = {
+    "case_name": "CHANGING_BASE_CASE_28d",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.15,
+    "human_killed_rate": 0.15,
+    "zombie_killed_rate": 1,
+    "time_in_days": 28,
+    "changing": True,
+    "zombie_killed_rate_2": 10,
+    "contact_rate_2": 3,
+    "time_in_days_2": 330,
+}
+
+
+def SIR_manager(case):
+    starting_values = (1 - case["infected"], case["infected"], 0)
+    rates = (
+        case["contact_rate"],
+        case["infection_probability"],
+        case["human_killed_rate"],
+        case["zombie_killed_rate"],
+    )
+    days = case["time_in_days"]
+    model = solve_ivp(
+        SIR_model,
+        (0, case["time_in_days"]),
+        starting_values,
+        args=(rates),
+        t_eval=np.arange(case["time_in_days"]),
+    )
+    susceptible, infected, removed = model.y
+    if case["changing"]:
+        contact_rate = (
+            case["contact_rate_2"] if "contact_rate_2" in case else case["contact_rate"]
+        )
+        infection_probability = (
+            case["infection_probability_2"]
+            if "infection_probability_2" in case
+            else case["infection_probability"]
+        )
+        human_killed_rate = (
+            case["human_killed_rate_2"]
+            if "human_killed_rate_2" in case
+            else case["human_killed_rate"]
+        )
+        zombie_killed_rate = (
+            case["zombie_killed_rate_2"]
+            if "zombie_killed_rate_2" in case
+            else case["zombie_killed_rate"]
+        )
+        days += case["time_in_days_2"]
+        model_2 = solve_ivp(
+            SIR_model,
+            (case["time_in_days"], case["time_in_days"] + case["time_in_days_2"]),
+            (susceptible[-1], infected[-1], removed[-1]),
+            args=(
+                contact_rate,
+                infection_probability,
+                human_killed_rate,
+                zombie_killed_rate,
+            ),
+            t_eval=np.arange(
+                case["time_in_days"], case["time_in_days"] + case["time_in_days_2"]
+            ),
+        )
+        susceptible_2, infected_2, removed_2 = model_2.y
+        susceptible = np.concatenate([susceptible, susceptible_2[1:]])
+        infected = np.concatenate([infected, infected_2[1:]])
+        removed = np.concatenate([removed, removed_2[1:]])
+    plt.plot(np.arange(len(susceptible)), susceptible, label="Susceptible", color="g")
+    plt.plot(np.arange(len(infected)), infected, label="Infected", color="r")
+    plt.plot(np.arange(len(removed)), removed, label="Removed", color="black")
+    plt.xlabel("Time in days")
+    plt.ylabel("People")
+    plt.title("SIR-Model Simulation")
+    plt.legend()
+    plt.savefig("figures/" + case["case_name"] + ".png")
+
 
 def SIR_model(
     time_interval,
     population,
-    general_birth_rate,
-    general_death_rate,
     contact_rate,
     infection_probability,
-    death_probability_of_human_by_zombies,
-    death_probability_of_zombies_by_human,
+    human_killed_rate,
+    zombie_killed_rate,
 ):
     susceptible, infected, removed = population
-    all = susceptible + infected + removed
     d_susceptible = (
-        general_birth_rate * all
-        - (infection_probability + death_probability_of_human_by_zombies)
+        -(infection_probability + human_killed_rate)
         * contact_rate
         * susceptible
         * infected
-        / all
-        - general_death_rate * susceptible
+        / (susceptible + infected)
     )
-    d_infected = (
-        infection_probability * contact_rate * susceptible * infected / all
-        - death_probability_of_zombies_by_human * infected
-    )
-    d_removed = (
-        death_probability_of_human_by_zombies
-        * contact_rate
-        * susceptible
-        * infected
-        / all
-        + death_probability_of_zombies_by_human * infected
-        + general_death_rate * susceptible
-    )
+    d_infected = infection_probability * contact_rate * susceptible * infected / (
+        susceptible + infected
+    ) - zombie_killed_rate * infected * susceptible / (susceptible + infected)
+    d_removed = human_killed_rate * contact_rate * susceptible * infected / (
+        susceptible + infected
+    ) + zombie_killed_rate * infected * susceptible / (susceptible + infected)
     return [d_susceptible, d_infected, d_removed]
 
 
-# use the solve_ivp function to calculate the integrals
-# This function takes a function, a time interval, start
-# values, as well as additional arguments and
-# in this case the interval in which it is supposed to save its results
-model = solve_ivp(
-    SIR_model, time_interval, starting_values, args=(rates), t_eval=t_eval
-)
+def main():
 
-# assign the results arrays to the variables
-susceptible, infected, removed = model.y
+    SIR_manager(BASE_CASE)
 
-# plot the graph
-plt.plot(t_eval, susceptible, label="Susceptible", color="g")
-plt.plot(t_eval, infected, label="Infected", color="r")
-plt.plot(t_eval, removed, label="Removed", color="black")
-plt.xlabel("Time in days")
-plt.ylabel("People")
-plt.title("SIR-Model Simulation")
-plt.legend()
-plt.show()
+    SIR_manager(WORST_CASE)
+
+    SIR_manager(BEST_CASE)
+
+    SIR_manager(CHANGING_CASE_14d)
+
+    SIR_manager(CHANGING_CASE_21d)
+
+    SIR_manager(CHANGING_CASE_28d)
 
 
-# =============================================================================
-# Let's investigate what happens, if after e.g. 40 days we impose a quarantine?
-# =============================================================================
-
-# First do the same as above, but only for the first 40 days:
-days = 40
-time_interval = (0, days)
-t_eval = np.arange(days)
-
-# Run the discretized simulation for the first 40 days using the Euler
-# algorithm:
-model_40d = solve_ivp(
-    SIR_model, time_interval, starting_values, args=(rates), t_eval=t_eval
-)
-
-# assign the results arrays to the variables
-susceptible, infected, removed = model_40d.y
-
-# Now impose the quarantine by reducing the contact rate:
-contact_rate = 0.5
-infection_rate = (
-    contact_rate * infection_probability
-)  # equals beta, tells how many people are infected by one infected per day
-rates = (GENERAL_BIRTH_RATE, GENERAL_DEATH_RATE, death_recovery_rate, infection_rate)
-
-# Adjust the time frame to 41 to 80 days
-days = 81
-time_interval = (40, days)
-t_eval = np.arange(40, days)
-
-# Start where day 40 left us:
-starting_values = [susceptible[-1], infected[-1], removed[-1]]
-model_80d = solve_ivp(
-    SIR_model, time_interval, starting_values, args=(rates), t_eval=t_eval
-)
-
-# append the results from the next 40 days:
-susceptible = np.concatenate([susceptible, model_80d.y[0][1:]])
-infected = np.concatenate([infected, model_80d.y[1][1:]])
-removed = np.concatenate([removed, model_80d.y[2][1:]])
-
-# plot the graph
-time_axis = np.arange(0, 80)
-plt.plot(time_axis, susceptible, label="Susceptible", color="g")
-plt.plot(time_axis, infected, label="Infected", color="r")
-plt.plot(time_axis, removed, label="Removed", color="black")
-plt.xlabel("Time in days")
-plt.ylabel("People")
-plt.title("SIR-Model Simulation")
-plt.legend()
-plt.show()
+if __name__ == "__main__":
+    main()
