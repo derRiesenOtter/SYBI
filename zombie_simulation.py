@@ -10,8 +10,8 @@ BASE_CASE = {
     "contact_rate": 10,
     "infection_probability": 0.15,
     "human_killed_rate": 0.15,
-    "zombie_killed_rate": 1,
-    "time_in_days": 360,
+    "zombie_killed_rate": 0.1,
+    "time_in_days": 100,
     "changing": False,
 }
 
@@ -21,8 +21,8 @@ WORST_CASE = {
     "contact_rate": 10,
     "infection_probability": 0.45,
     "human_killed_rate": 0.45,
-    "zombie_killed_rate": 1,
-    "time_in_days": 360,
+    "zombie_killed_rate": 0.1,
+    "time_in_days": 100,
     "changing": False,
 }
 
@@ -32,8 +32,8 @@ BEST_CASE = {
     "contact_rate": 10,
     "infection_probability": 0.10,
     "human_killed_rate": 0.10,
-    "zombie_killed_rate": 1,
-    "time_in_days": 360,
+    "zombie_killed_rate": 0.1,
+    "time_in_days": 100,
     "changing": False,
 }
 
@@ -43,12 +43,13 @@ CHANGING_CASE_14d = {
     "contact_rate": 10,
     "infection_probability": 0.15,
     "human_killed_rate": 0.15,
-    "zombie_killed_rate": 1,
+    "zombie_killed_rate": 0.1,
     "time_in_days": 14,
     "changing": True,
-    "zombie_killed_rate_2": 10,
-    "contact_rate_2": 3,
-    "time_in_days_2": 330,
+    "zombie_killed_rate_2": 0.3,
+    "contact_rate_2": 2,
+    "time_in_days_2": 86,
+    "infection_probability_2": 0.075,
 }
 
 CHANGING_CASE_21d = {
@@ -57,12 +58,40 @@ CHANGING_CASE_21d = {
     "contact_rate": 10,
     "infection_probability": 0.15,
     "human_killed_rate": 0.15,
-    "zombie_killed_rate": 1,
+    "zombie_killed_rate": 0.1,
     "time_in_days": 21,
     "changing": True,
-    "zombie_killed_rate_2": 10,
-    "contact_rate_2": 3,
-    "time_in_days_2": 330,
+    "zombie_killed_rate_2": 0.2,
+    "contact_rate_2": 2,
+    "time_in_days_2": 79,
+    "infection_probability_2": 0.075,
+}
+
+CHANGING_CASE_21d_mil = {
+    "case_name": "CHANGING_BASE_CASE_21d_mil",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.15,
+    "human_killed_rate": 0.15,
+    "zombie_killed_rate": 0.1,
+    "time_in_days": 21,
+    "changing": True,
+    "zombie_killed_rate_2": 0.2,
+    "time_in_days_2": 79,
+}
+
+CHANGING_CASE_21d_qua = {
+    "case_name": "CHANGING_BASE_CASE_21d_qua",
+    "infected": 0.000001,
+    "contact_rate": 10,
+    "infection_probability": 0.15,
+    "human_killed_rate": 0.15,
+    "zombie_killed_rate": 0.1,
+    "time_in_days": 21,
+    "changing": True,
+    "contact_rate_2": 2,
+    "time_in_days_2": 79,
+    "infection_probability_2": 0.075,
 }
 
 CHANGING_CASE_28d = {
@@ -71,12 +100,13 @@ CHANGING_CASE_28d = {
     "contact_rate": 10,
     "infection_probability": 0.15,
     "human_killed_rate": 0.15,
-    "zombie_killed_rate": 1,
+    "zombie_killed_rate": 0.1,
     "time_in_days": 28,
     "changing": True,
-    "zombie_killed_rate_2": 10,
-    "contact_rate_2": 3,
-    "time_in_days_2": 330,
+    "zombie_killed_rate_2": 0.2,
+    "contact_rate_2": 2,
+    "time_in_days_2": 72,
+    "infection_probability_2": 0.075,
 }
 
 
@@ -143,6 +173,7 @@ def SIR_manager(case):
     plt.title("SIR-Model Simulation")
     plt.legend()
     plt.savefig("figures/" + case["case_name"] + ".png")
+    plt.show()
 
 
 def SIR_model(
@@ -163,10 +194,14 @@ def SIR_model(
     )
     d_infected = infection_probability * contact_rate * susceptible * infected / (
         susceptible + infected
-    ) - zombie_killed_rate * infected * susceptible / (susceptible + infected)
+    ) - zombie_killed_rate * contact_rate * infected * susceptible / (
+        susceptible + infected
+    )
     d_removed = human_killed_rate * contact_rate * susceptible * infected / (
         susceptible + infected
-    ) + zombie_killed_rate * infected * susceptible / (susceptible + infected)
+    ) + zombie_killed_rate * contact_rate * infected * susceptible / (
+        susceptible + infected
+    )
     return [d_susceptible, d_infected, d_removed]
 
 
@@ -181,6 +216,10 @@ def main():
     SIR_manager(CHANGING_CASE_14d)
 
     SIR_manager(CHANGING_CASE_21d)
+
+    SIR_manager(CHANGING_CASE_21d_mil)
+
+    SIR_manager(CHANGING_CASE_21d_qua)
 
     SIR_manager(CHANGING_CASE_28d)
 
