@@ -50,6 +50,7 @@ CHANGING_CASE_14d = {
     "contact_rate_2": 2,
     "time_in_days_2": 86,
     "infection_probability_2": 0.075,
+    "human_killed_rate_2": 0.10,
 }
 
 CHANGING_CASE_21d = {
@@ -65,6 +66,7 @@ CHANGING_CASE_21d = {
     "contact_rate_2": 2,
     "time_in_days_2": 79,
     "infection_probability_2": 0.075,
+    "human_killed_rate_2": 0.10,
 }
 
 CHANGING_CASE_21d_mil = {
@@ -92,6 +94,7 @@ CHANGING_CASE_21d_qua = {
     "contact_rate_2": 2,
     "time_in_days_2": 79,
     "infection_probability_2": 0.075,
+    "human_killed_rate_2": 0.10,
 }
 
 CHANGING_CASE_28d = {
@@ -107,6 +110,7 @@ CHANGING_CASE_28d = {
     "contact_rate_2": 2,
     "time_in_days_2": 72,
     "infection_probability_2": 0.075,
+    "human_killed_rate_2": 0.10,
 }
 
 
