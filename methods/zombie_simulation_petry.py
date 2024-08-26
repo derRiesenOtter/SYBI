@@ -90,7 +90,7 @@ def main():
     plt.legend()
     plt.subplots_adjust(right=0.74)
     plt.gcf().text(x=0.75, y=0.5, s=print_dict(case))
-    plt.savefig("figures/" + case["case_name"] + ".png", bbox_inches="tight")
+    plt.savefig("results/" + case["case_name"] + ".png", bbox_inches="tight")
     plt.show()
 
 

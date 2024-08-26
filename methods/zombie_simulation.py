@@ -178,7 +178,7 @@ def SIR_manager(case):
     plt.legend()
     plt.subplots_adjust(right=0.74)
     plt.gcf().text(x=0.75, y=0.5, s=print_dict(case))
-    plt.savefig("figures/" + case["case_name"] + ".png", bbox_inch s="tight")
+    plt.savefig("results/" + case["case_name"] + ".png", bbox_inch="tight")
     plt.show()
 
 
