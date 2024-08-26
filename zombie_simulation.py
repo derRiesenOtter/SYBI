@@ -176,8 +176,17 @@ def SIR_manager(case):
     plt.ylabel("People")
     plt.title("SIR-Model Simulation")
     plt.legend()
-    plt.savefig("figures/" + case["case_name"] + ".png")
+    plt.subplots_adjust(right=0.74)
+    plt.gcf().text(x=0.75, y=0.5, s=print_dict(case))
+    plt.savefig("figures/" + case["case_name"] + ".png", bbox_inch s="tight")
     plt.show()
+
+
+def print_dict(dict):
+    res = ""
+    for key, value in dict.items():
+        res += str(key) + ": " + str(value) + "\n"
+    return res
 
 
 def SIR_model(

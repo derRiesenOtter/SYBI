@@ -56,6 +56,13 @@ def zombie_killed(population):
     return population
 
 
+def print_dict(dict):
+    res = ""
+    for key, value in dict.items():
+        res += str(key) + ": " + str(value) + "\n"
+    return res
+
+
 def main():
     results = [[], [], []]
     moves = 10000000
@@ -78,7 +85,9 @@ def main():
     plt.title("Petry Net Simulation")
     plt.ylim(0, 1000000)
     plt.legend()
-    plt.savefig("figures/" + case["case_name"] + ".png")
+    plt.subplots_adjust(right=0.74)
+    plt.gcf().text(x=0.75, y=0.5, s=print_dict(case))
+    plt.savefig("figures/" + case["case_name"] + ".png", bbox_inches="tight")
     plt.show()
 
 
