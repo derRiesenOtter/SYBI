@@ -8,6 +8,9 @@ case = {
     "infection_probability": 0.8,
     "human_killed_rate": 0.15,
     "zombie_killed_rate": 0.05,
+    "susceptible_at_start": 999999,
+    "infected_at_start": 1,
+    "number_of_moves": 10000000,
 }
 
 population = {"susceptible": 999999, "infected": 1, "removed": 0}
